@@ -11,6 +11,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceManager.Infrastruct
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceManager.Api", "src\ResourceManager.Api\ResourceManager.Api.csproj", "{29563892-3490-4252-8CB9-8D39CE74920F}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{163FE2F5-7B77-440A-A92B-AC0C54BFB862}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ResourceManager.UnitTests", "tests\ResourceManager.UnitTests\ResourceManager.UnitTests.csproj", "{AE013877-2D3A-47C0-838B-96BB92BD550D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -32,10 +36,15 @@ Global
 		{29563892-3490-4252-8CB9-8D39CE74920F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{29563892-3490-4252-8CB9-8D39CE74920F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29563892-3490-4252-8CB9-8D39CE74920F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AE013877-2D3A-47C0-838B-96BB92BD550D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AE013877-2D3A-47C0-838B-96BB92BD550D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AE013877-2D3A-47C0-838B-96BB92BD550D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AE013877-2D3A-47C0-838B-96BB92BD550D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{5F5DAD0B-4E66-4538-A0EC-A7A255A4C8C8} = {81E67267-800F-48AA-A7D9-5045F178F844}
 		{AF8E8D98-2618-4874-833C-6AF4C1E244DC} = {81E67267-800F-48AA-A7D9-5045F178F844}
 		{29563892-3490-4252-8CB9-8D39CE74920F} = {81E67267-800F-48AA-A7D9-5045F178F844}
+		{AE013877-2D3A-47C0-838B-96BB92BD550D} = {163FE2F5-7B77-440A-A92B-AC0C54BFB862}
 	EndGlobalSection
 EndGlobal
