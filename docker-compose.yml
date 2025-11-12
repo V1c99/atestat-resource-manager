@@ -20,7 +20,7 @@ services:
         condition: service_healthy
     environment:
       ASPNETCORE_URLS: http://+:8080
-      ConnectionStrings__Database: Host=localhost;Port=5432;Database=resourcemanager;Username=resourcemanager;Password=${POSTGRES_PASSWORD:-resourcemanager}
+      ConnectionStrings__Database: Host=db;Port=5432;Database=resourcemanager;Username=resourcemanager;Password=${POSTGRES_PASSWORD:-resourcemanager}
     ports:
       - "5080:8080"
 
