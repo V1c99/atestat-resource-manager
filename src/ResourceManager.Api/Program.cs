@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ResourceManager.Infrastructure;
+using ResourceManager.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,8 @@ if (string.IsNullOrWhiteSpace(connectionString))
 builder.Services.AddDbContext<AppDbContext>(options => options
     .UseNpgsql(connectionString)
     .UseSnakeCaseNamingConvention());
+
+builder.Services.AddScoped<ResourceRepository>();
 
 builder.Services.AddControllers();
 
