@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using ResourceManager.Infrastructure;
 using ResourceManager.Infrastructure.Repositories;
@@ -16,9 +17,23 @@ builder.Services.AddDbContext<AppDbContext>(options => options
 
 builder.Services.AddScoped<ResourceRepository>();
 
-builder.Services.AddControllers();
+builder.Services
+    .AddControllers()
+    .AddJsonOptions(options => options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter()));
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await Seed.RunAsync(db);
+}
+
+app.UseSwagger();
+app.UseSwaggerUI();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
