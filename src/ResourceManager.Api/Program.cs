@@ -16,6 +16,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options
     .UseSnakeCaseNamingConvention());
 
 builder.Services.AddScoped<ResourceRepository>();
+builder.Services.AddScoped<BookingRepository>();
 
 builder.Services
     .AddControllers()
