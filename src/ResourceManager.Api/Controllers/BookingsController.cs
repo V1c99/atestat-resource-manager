@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ResourceManager.Api.Contracts;
 using ResourceManager.Domain;
 using ResourceManager.Infrastructure.Repositories;
 
@@ -16,17 +17,18 @@ public class BookingsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Booking>>> List(
+    public async Task<ActionResult<List<BookingResponse>>> List(
         [FromQuery] Guid? resourceId,
         [FromQuery] DateTimeOffset? from,
         [FromQuery] DateTimeOffset? to,
         [FromQuery] BookingStatus? status)
     {
-        return Ok(await _bookings.ListAsync(resourceId, from, to, status));
+        var bookings = await _bookings.ListAsync(resourceId, from?.ToUniversalTime(), to?.ToUniversalTime(), status);
+        return Ok(bookings.Select(b => b.ToResponse()).ToList());
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Booking>> Get(Guid id)
+    public async Task<ActionResult<BookingResponse>> Get(Guid id)
     {
         var booking = await _bookings.GetAsync(id);
         if (booking is null)
@@ -34,13 +36,13 @@ public class BookingsController : ControllerBase
             return NotFound();
         }
 
-        return Ok(booking);
+        return Ok(booking.ToResponse());
     }
 
     [HttpPost]
-    public async Task<ActionResult<Booking>> Create(Booking booking)
+    public async Task<ActionResult<BookingResponse>> Create(CreateBookingRequest request)
     {
-        var created = await _bookings.AddAsync(booking);
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        var created = await _bookings.AddAsync(request.ToBooking());
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
     }
 }

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using ResourceManager.Api.Contracts;
 using ResourceManager.Domain;
 using ResourceManager.Infrastructure.Repositories;
 
@@ -16,13 +17,14 @@ public class ResourcesController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<List<Resource>>> List([FromQuery] ResourceType? type, [FromQuery] bool includeInactive)
+    public async Task<ActionResult<List<ResourceResponse>>> List([FromQuery] ResourceType? type, [FromQuery] bool includeInactive)
     {
-        return Ok(await _resources.ListAsync(type, !includeInactive));
+        var resources = await _resources.ListAsync(type, !includeInactive);
+        return Ok(resources.Select(r => r.ToResponse()).ToList());
     }
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<Resource>> Get(Guid id)
+    public async Task<ActionResult<ResourceResponse>> Get(Guid id)
     {
         var resource = await _resources.GetAsync(id);
         if (resource is null)
@@ -30,30 +32,30 @@ public class ResourcesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(resource);
+        return Ok(resource.ToResponse());
     }
 
     [HttpPost]
-    public async Task<ActionResult<Resource>> Create(Resource resource)
+    public async Task<ActionResult<ResourceResponse>> Create(CreateResourceRequest request)
     {
-        var created = await _resources.AddAsync(resource);
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, created);
+        var created = await _resources.AddAsync(request.ToResource());
+        return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
     }
 
     [HttpPut("{id:guid}")]
-    public async Task<ActionResult<Resource>> Update(Guid id, Resource resource)
+    public async Task<ActionResult<ResourceResponse>> Update(Guid id, UpdateResourceRequest request)
     {
-        var updated = await _resources.UpdateAsync(id, resource.Name, resource.Type, resource.Capacity, resource.Location);
+        var updated = await _resources.UpdateAsync(id, request.Name, request.Type, request.Capacity, request.Location);
         if (updated is null)
         {
             return NotFound();
         }
 
-        return Ok(updated);
+        return Ok(updated.ToResponse());
     }
 
     [HttpPost("{id:guid}/deactivate")]
-    public async Task<ActionResult<Resource>> Deactivate(Guid id)
+    public async Task<ActionResult<ResourceResponse>> Deactivate(Guid id)
     {
         var updated = await _resources.SetActiveAsync(id, false);
         if (updated is null)
@@ -61,11 +63,11 @@ public class ResourcesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(updated);
+        return Ok(updated.ToResponse());
     }
 
     [HttpPost("{id:guid}/activate")]
-    public async Task<ActionResult<Resource>> Activate(Guid id)
+    public async Task<ActionResult<ResourceResponse>> Activate(Guid id)
     {
         var updated = await _resources.SetActiveAsync(id, true);
         if (updated is null)
@@ -73,6 +75,6 @@ public class ResourcesController : ControllerBase
             return NotFound();
         }
 
-        return Ok(updated);
+        return Ok(updated.ToResponse());
     }
 }
