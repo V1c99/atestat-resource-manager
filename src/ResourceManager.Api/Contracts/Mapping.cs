@@ -36,8 +36,10 @@ public static class Mapping
         {
             ResourceId = request.ResourceId,
             RequesterId = request.RequesterId,
-            StartsAt = request.StartsAt,
-            EndsAt = request.EndsAt,
+            // Npgsql refuses a DateTimeOffset that is not offset 0 when the column is
+            // timestamptz. The browser sends +02:00 and it threw here every time.
+            StartsAt = request.StartsAt.ToUniversalTime(),
+            EndsAt = request.EndsAt.ToUniversalTime(),
             Purpose = request.Purpose
         };
     }
