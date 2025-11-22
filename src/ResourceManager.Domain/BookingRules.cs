@@ -4,9 +4,11 @@ public static class BookingRules
 {
     public const int MaxHours = 12;
 
+    // Half open interval, the same as the '[)' I put in the database constraint. A booking
+    // that ends at 11:00 does not clash with one that starts at 11:00.
     public static bool Overlaps(DateTimeOffset firstStart, DateTimeOffset firstEnd, DateTimeOffset secondStart, DateTimeOffset secondEnd)
     {
-        return firstStart <= secondEnd && secondStart <= firstEnd;
+        return firstStart < secondEnd && secondStart < firstEnd;
     }
 
     public static bool Overlaps(Booking first, Booking second)

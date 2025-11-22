@@ -30,6 +30,12 @@ public class BookingRulesTests
     }
 
     [Fact]
+    public void A_booking_that_starts_exactly_when_another_ends_does_not_overlap()
+    {
+        BookingRules.Overlaps(At(10), At(11), At(11), At(12)).Should().BeFalse();
+    }
+
+    [Fact]
     public void Bookings_on_different_parts_of_the_day_do_not_overlap()
     {
         BookingRules.Overlaps(At(8), At(9), At(16), At(17)).Should().BeFalse();
