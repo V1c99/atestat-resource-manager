@@ -21,3 +21,5 @@ public record BookingResponse(
     string Purpose,
     BookingStatus Status,
     DateTimeOffset CreatedAt);
+
+public record ErrorResponse(string Message);

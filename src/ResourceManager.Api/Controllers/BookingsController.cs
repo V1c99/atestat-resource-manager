@@ -42,7 +42,14 @@ public class BookingsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<BookingResponse>> Create(CreateBookingRequest request)
     {
-        var created = await _bookings.AddAsync(request.ToBooking());
+        var booking = request.ToBooking();
+
+        if (await _bookings.HasClashAsync(booking))
+        {
+            return Conflict(new ErrorResponse("Something else is booked on that resource for part of that interval."));
+        }
+
+        var created = await _bookings.AddAsync(booking);
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
     }
 }
