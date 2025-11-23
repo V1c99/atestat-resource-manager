@@ -63,6 +63,13 @@ public class BookingRulesTests
     }
 
     [Fact]
+    public void A_range_longer_than_the_maximum_is_not_valid()
+    {
+        var start = At(6);
+        BookingRules.IsValidRange(start, start.AddHours(BookingRules.MaxHours + 1)).Should().BeFalse();
+    }
+
+    [Fact]
     public void A_range_of_one_hour_is_valid()
     {
         BookingRules.IsValidRange(At(10), At(11)).Should().BeTrue();
