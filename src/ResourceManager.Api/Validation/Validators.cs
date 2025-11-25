@@ -44,3 +44,12 @@ public class CreateBookingRequestValidator : AbstractValidator<CreateBookingRequ
             .When(r => r.EndsAt > r.StartsAt);
     }
 }
+
+public class CancelBookingRequestValidator : AbstractValidator<CancelBookingRequest>
+{
+    public CancelBookingRequestValidator()
+    {
+        RuleFor(r => r.CancelledBy).NotEmpty();
+        RuleFor(r => r.Reason).NotEmpty().MaximumLength(200);
+    }
+}

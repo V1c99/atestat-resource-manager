@@ -51,6 +51,17 @@ public class BookingRulesTests
     }
 
     [Fact]
+    public void A_cancelled_booking_does_not_overlap_anything()
+    {
+        var resourceId = Guid.NewGuid();
+        var first = Confirmed(resourceId, At(10), At(11));
+        var second = Confirmed(resourceId, At(10), At(11));
+        second.Status = BookingStatus.Cancelled;
+
+        BookingRules.Overlaps(first, second).Should().BeFalse();
+    }
+
+    [Fact]
     public void A_range_that_ends_before_it_starts_is_not_valid()
     {
         BookingRules.IsValidRange(At(11), At(10)).Should().BeFalse();

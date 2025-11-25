@@ -22,4 +22,12 @@ public record BookingResponse(
     BookingStatus Status,
     DateTimeOffset CreatedAt);
 
+public record BookingAuditResponse(
+    long Id,
+    BookingStatus? FromStatus,
+    BookingStatus ToStatus,
+    Guid ChangedBy,
+    DateTimeOffset ChangedAt,
+    string Note);
+
 public record ErrorResponse(string Message);

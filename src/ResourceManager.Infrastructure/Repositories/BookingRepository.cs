@@ -76,9 +76,55 @@ public class BookingRepository
         booking.CreatedAt = DateTimeOffset.UtcNow;
 
         _db.Bookings.Add(booking);
+        _db.BookingAudits.Add(new BookingAudit
+        {
+            BookingId = booking.Id,
+            FromStatus = null,
+            ToStatus = BookingStatus.Confirmed,
+            ChangedBy = booking.RequesterId,
+            ChangedAt = booking.CreatedAt,
+            Note = "Booking created"
+        });
 
         await _db.SaveChangesAsync();
 
         return await GetAsync(booking.Id) ?? booking;
+    }
+
+    public async Task<Booking?> CancelAsync(Guid id, Guid cancelledBy, string reason)
+    {
+        var booking = await _db.Bookings.FirstOrDefaultAsync(b => b.Id == id);
+        if (booking is null)
+        {
+            return null;
+        }
+
+        if (booking.Status == BookingStatus.Cancelled)
+        {
+            return booking;
+        }
+
+        booking.Status = BookingStatus.Cancelled;
+        _db.BookingAudits.Add(new BookingAudit
+        {
+            BookingId = booking.Id,
+            FromStatus = BookingStatus.Confirmed,
+            ToStatus = BookingStatus.Cancelled,
+            ChangedBy = cancelledBy,
+            ChangedAt = DateTimeOffset.UtcNow,
+            Note = reason
+        });
+
+        await _db.SaveChangesAsync();
+        return await GetAsync(booking.Id);
+    }
+
+    public async Task<List<BookingAudit>> AuditTrailAsync(Guid bookingId)
+    {
+        return await _db.BookingAudits
+            .AsNoTracking()
+            .Where(a => a.BookingId == bookingId)
+            .OrderBy(a => a.Id)
+            .ToListAsync();
     }
 }

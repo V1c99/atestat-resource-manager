@@ -30,6 +30,17 @@ public static class Mapping
             booking.CreatedAt);
     }
 
+    public static BookingAuditResponse ToResponse(this BookingAudit audit)
+    {
+        return new BookingAuditResponse(
+            audit.Id,
+            audit.FromStatus,
+            audit.ToStatus,
+            audit.ChangedBy,
+            audit.ChangedAt,
+            audit.Note);
+    }
+
     public static Booking ToBooking(this CreateBookingRequest request)
     {
         return new Booking

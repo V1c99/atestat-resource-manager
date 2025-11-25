@@ -26,3 +26,9 @@ public class CreateBookingRequest
     public DateTimeOffset EndsAt { get; set; }
     public string Purpose { get; set; } = string.Empty;
 }
+
+public class CancelBookingRequest
+{
+    public Guid CancelledBy { get; set; }
+    public string Reason { get; set; } = string.Empty;
+}
