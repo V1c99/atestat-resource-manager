@@ -33,9 +33,12 @@ builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
+// TODO: migrating on startup is fine while there is one container. I do not know yet what
+// two of them starting at the same time would do to each other.
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    await db.Database.MigrateAsync();
     await Seed.RunAsync(db);
 }
 
