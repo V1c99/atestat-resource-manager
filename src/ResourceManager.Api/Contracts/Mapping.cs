@@ -41,6 +41,11 @@ public static class Mapping
             audit.Note);
     }
 
+    public static UserResponse ToResponse(this User user)
+    {
+        return new UserResponse(user.Id, user.FullName, user.Email, user.Role);
+    }
+
     public static Booking ToBooking(this CreateBookingRequest request)
     {
         return new Booking

@@ -65,6 +65,49 @@ public class BookingsTests
     }
 
     [Fact]
+    public async Task A_booking_for_a_deactivated_resource_is_rejected()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        await _client.PostAsync($"/api/resources/{resource.Id}/deactivate", null);
+
+        var day = TestData.NextMonday(15);
+        var response = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(1)), ApiFactory.Json);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task The_seeded_users_are_listed()
+    {
+        var users = await _client.GetFromJsonAsync<List<UserResponse>>("/api/users", ApiFactory.Json);
+
+        users.Should().HaveCount(4);
+        users!.Should().Contain(u => u.Role == UserRole.Administrator);
+    }
+
+    [Fact]
+    public async Task The_audit_trail_records_the_creation_and_the_cancellation()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(8);
+
+        var created = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(1)), ApiFactory.Json);
+        var booking = (await created.Content.ReadFromJsonAsync<BookingResponse>(ApiFactory.Json))!;
+
+        await _client.PostAsJsonAsync($"/api/bookings/{booking.Id}/cancel",
+            new CancelBookingRequest { CancelledBy = TestData.Requester, Reason = "Not needed anymore" }, ApiFactory.Json);
+
+        var trail = await _client.GetFromJsonAsync<List<BookingAuditResponse>>($"/api/bookings/{booking.Id}/audit", ApiFactory.Json);
+
+        trail.Should().HaveCount(2);
+        trail![0].FromStatus.Should().BeNull();
+        trail[0].ToStatus.Should().Be(BookingStatus.Confirmed);
+        trail[1].FromStatus.Should().Be(BookingStatus.Confirmed);
+        trail[1].ToStatus.Should().Be(BookingStatus.Cancelled);
+        trail[1].Note.Should().Be("Not needed anymore");
+    }
+
+    [Fact]
     public async Task A_booking_sent_with_a_local_offset_is_stored_as_utc()
     {
         var resource = await TestData.CreateResourceAsync(_client);

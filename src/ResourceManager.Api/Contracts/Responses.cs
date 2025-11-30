@@ -30,4 +30,10 @@ public record BookingAuditResponse(
     DateTimeOffset ChangedAt,
     string Note);
 
+public record UserResponse(
+    Guid Id,
+    string FullName,
+    string Email,
+    UserRole Role);
+
 public record ErrorResponse(string Message);

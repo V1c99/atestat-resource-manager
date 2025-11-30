@@ -10,10 +10,12 @@ namespace ResourceManager.Api.Controllers;
 public class ResourcesController : ControllerBase
 {
     private readonly ResourceRepository _resources;
+    private readonly BookingRepository _bookings;
 
-    public ResourcesController(ResourceRepository resources)
+    public ResourcesController(ResourceRepository resources, BookingRepository bookings)
     {
         _resources = resources;
+        _bookings = bookings;
     }
 
     [HttpGet]
@@ -76,5 +78,23 @@ public class ResourcesController : ControllerBase
         }
 
         return Ok(updated.ToResponse());
+    }
+
+    [HttpGet("{id:guid}/schedule")]
+    public async Task<ActionResult<List<BookingResponse>>> Schedule(Guid id, [FromQuery] DateTimeOffset from, [FromQuery] DateTimeOffset to)
+    {
+        var resource = await _resources.GetAsync(id);
+        if (resource is null)
+        {
+            return NotFound();
+        }
+
+        if (to <= from)
+        {
+            return BadRequest(new ErrorResponse("'to' has to be after 'from'."));
+        }
+
+        var bookings = await _bookings.ListAsync(id, from.ToUniversalTime(), to.ToUniversalTime(), BookingStatus.Confirmed);
+        return Ok(bookings.Select(b => b.ToResponse()).ToList());
     }
 }
