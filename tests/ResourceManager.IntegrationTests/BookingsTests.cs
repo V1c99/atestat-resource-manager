@@ -19,6 +19,21 @@ public class BookingsTests
     }
 
     [Fact]
+    public async Task Concurrent_overlapping_bookings_only_one_succeeds()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(10);
+
+        var first = _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(1)), ApiFactory.Json);
+        var second = _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day.AddMinutes(30), day.AddMinutes(90), TestData.OtherRequester), ApiFactory.Json);
+
+        var results = await Task.WhenAll(first, second);
+
+        results.Count(r => r.StatusCode == HttpStatusCode.Created).Should().Be(1);
+        results.Count(r => r.StatusCode == HttpStatusCode.Conflict).Should().Be(1);
+    }
+
+    [Fact]
     public async Task A_booking_that_starts_when_another_ends_is_accepted()
     {
         var resource = await TestData.CreateResourceAsync(_client);
