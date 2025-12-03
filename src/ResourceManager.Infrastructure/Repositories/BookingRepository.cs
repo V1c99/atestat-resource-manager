@@ -52,23 +52,6 @@ public class BookingRepository
             .FirstOrDefaultAsync(b => b.Id == id);
     }
 
-    public async Task<bool> HasClashAsync(Booking booking)
-    {
-        var from = booking.StartsAt.AddDays(-1);
-        var to = booking.EndsAt.AddDays(1);
-
-        var nearby = await _db.Bookings
-            .AsNoTracking()
-            .Where(b => b.ResourceId == booking.ResourceId
-                && b.Status == BookingStatus.Confirmed
-                && b.StartsAt > from
-                && b.StartsAt < to)
-            .ToListAsync();
-
-        booking.Status = BookingStatus.Confirmed;
-        return nearby.Any(existing => BookingRules.Overlaps(existing, booking));
-    }
-
     public async Task<Booking> AddAsync(Booking booking)
     {
         booking.Id = Guid.NewGuid();

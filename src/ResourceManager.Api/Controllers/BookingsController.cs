@@ -50,14 +50,7 @@ public class BookingsController : ControllerBase
             return BadRequest(new ErrorResponse("That resource does not exist or is not active."));
         }
 
-        var booking = request.ToBooking();
-
-        if (await _bookings.HasClashAsync(booking))
-        {
-            return Conflict(new ErrorResponse($"{resource.Name} is already booked for part of that interval."));
-        }
-
-        var created = await _bookings.AddAsync(booking);
+        var created = await _bookings.AddAsync(request.ToBooking());
         return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
     }
 
