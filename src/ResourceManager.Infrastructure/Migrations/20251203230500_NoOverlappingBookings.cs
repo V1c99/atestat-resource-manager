@@ -10,6 +10,8 @@ namespace ResourceManager.Infrastructure.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS btree_gist;");
+
             migrationBuilder.Sql(@"
                 ALTER TABLE bookings
                 ADD CONSTRAINT bookings_no_overlap
