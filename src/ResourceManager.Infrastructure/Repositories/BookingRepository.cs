@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using ResourceManager.Domain;
 
 namespace ResourceManager.Infrastructure.Repositories;
@@ -69,7 +70,21 @@ public class BookingRepository
             Note = "Booking created"
         });
 
-        await _db.SaveChangesAsync();
+        try
+        {
+            await _db.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            // 23P01 is exclusion_violation, which here can only be bookings_no_overlap.
+            // Anything else that went wrong is not mine to swallow.
+            if (ex.InnerException is PostgresException postgres && postgres.SqlState == "23P01")
+            {
+                throw new BookingOverlapException();
+            }
+
+            throw;
+        }
 
         return await GetAsync(booking.Id) ?? booking;
     }

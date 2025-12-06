@@ -47,6 +47,26 @@ public class BookingsTests
     }
 
     [Fact]
+    public async Task Cancelling_a_booking_frees_the_slot()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(14);
+
+        var first = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(2)), ApiFactory.Json);
+        var booking = (await first.Content.ReadFromJsonAsync<BookingResponse>(ApiFactory.Json))!;
+
+        var blocked = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(2)), ApiFactory.Json);
+        blocked.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        var cancel = await _client.PostAsJsonAsync($"/api/bookings/{booking.Id}/cancel",
+            new CancelBookingRequest { CancelledBy = TestData.Requester, Reason = "Meeting moved online" }, ApiFactory.Json);
+        cancel.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var retry = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(2)), ApiFactory.Json);
+        retry.StatusCode.Should().Be(HttpStatusCode.Created);
+    }
+
+    [Fact]
     public async Task A_booking_that_ends_before_it_starts_is_rejected()
     {
         var resource = await TestData.CreateResourceAsync(_client);

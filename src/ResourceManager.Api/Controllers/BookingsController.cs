@@ -50,8 +50,15 @@ public class BookingsController : ControllerBase
             return BadRequest(new ErrorResponse("That resource does not exist or is not active."));
         }
 
-        var created = await _bookings.AddAsync(request.ToBooking());
-        return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
+        try
+        {
+            var created = await _bookings.AddAsync(request.ToBooking());
+            return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
+        }
+        catch (BookingOverlapException)
+        {
+            return Conflict(new ErrorResponse($"{resource.Name} is already booked for part of that interval."));
+        }
     }
 
     [HttpPost("{id:guid}/cancel")]
