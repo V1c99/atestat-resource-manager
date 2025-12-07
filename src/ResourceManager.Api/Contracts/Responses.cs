@@ -37,3 +37,5 @@ public record UserResponse(
     UserRole Role);
 
 public record ErrorResponse(string Message);
+
+public record BookingConflictResponse(string Message, BookingResponse? ClashesWith);

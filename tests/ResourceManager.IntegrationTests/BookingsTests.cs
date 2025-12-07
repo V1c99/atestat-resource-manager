@@ -67,6 +67,25 @@ public class BookingsTests
     }
 
     [Fact]
+    public async Task The_conflict_response_names_the_booking_that_is_in_the_way()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(13);
+
+        await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(2)), ApiFactory.Json);
+        var clash = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day.AddHours(1), day.AddHours(3)), ApiFactory.Json);
+
+        clash.StatusCode.Should().Be(HttpStatusCode.Conflict);
+
+        var problem = await clash.Content.ReadFromJsonAsync<JsonElement>(ApiFactory.Json);
+        var inTheWay = problem.GetProperty("clashesWith");
+
+        inTheWay.GetProperty("startsAt").GetDateTimeOffset().Should().Be(day);
+        inTheWay.GetProperty("purpose").GetString().Should().Be("Team meeting");
+        inTheWay.GetProperty("resourceName").GetString().Should().Be(resource.Name);
+    }
+
+    [Fact]
     public async Task A_booking_that_ends_before_it_starts_is_rejected()
     {
         var resource = await TestData.CreateResourceAsync(_client);

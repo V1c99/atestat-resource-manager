@@ -80,7 +80,7 @@ public class BookingRepository
             // Anything else that went wrong is not mine to swallow.
             if (ex.InnerException is PostgresException postgres && postgres.SqlState == "23P01")
             {
-                throw new BookingOverlapException();
+                throw new BookingOverlapException(await FindClashAsync(booking));
             }
 
             throw;
@@ -124,5 +124,25 @@ public class BookingRepository
             .Where(a => a.BookingId == bookingId)
             .OrderBy(a => a.Id)
             .ToListAsync();
+    }
+
+    // The database has already refused the insert. This only finds the booking to name
+    // in the message.
+    private async Task<Booking?> FindClashAsync(Booking booking)
+    {
+        var from = booking.StartsAt.AddDays(-1);
+        var to = booking.EndsAt.AddDays(1);
+
+        var nearby = await _db.Bookings
+            .AsNoTracking()
+            .Include(b => b.Resource)
+            .Include(b => b.Requester)
+            .Where(b => b.ResourceId == booking.ResourceId
+                && b.Status == BookingStatus.Confirmed
+                && b.StartsAt > from
+                && b.StartsAt < to)
+            .ToListAsync();
+
+        return nearby.FirstOrDefault(existing => BookingRules.Overlaps(existing, booking));
     }
 }

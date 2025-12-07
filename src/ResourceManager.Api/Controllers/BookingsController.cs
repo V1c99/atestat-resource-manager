@@ -55,9 +55,11 @@ public class BookingsController : ControllerBase
             var created = await _bookings.AddAsync(request.ToBooking());
             return CreatedAtAction(nameof(Get), new { id = created.Id }, created.ToResponse());
         }
-        catch (BookingOverlapException)
+        catch (BookingOverlapException ex)
         {
-            return Conflict(new ErrorResponse($"{resource.Name} is already booked for part of that interval."));
+            return Conflict(new BookingConflictResponse(
+                $"{resource.Name} is already booked for part of that interval.",
+                ex.ClashesWith?.ToResponse()));
         }
     }
 
