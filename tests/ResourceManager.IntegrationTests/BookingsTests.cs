@@ -131,12 +131,70 @@ public class BookingsTests
     }
 
     [Fact]
+    public async Task Cancelling_a_booking_that_does_not_exist_gives_404()
+    {
+        var response = await _client.PostAsJsonAsync($"/api/bookings/{Guid.NewGuid()}/cancel",
+            new CancelBookingRequest { CancelledBy = TestData.Requester, Reason = "Nothing to cancel" }, ApiFactory.Json);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Cancelling_a_booking_twice_leaves_one_cancellation_in_the_trail()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(16);
+
+        var created = await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(1)), ApiFactory.Json);
+        var booking = (await created.Content.ReadFromJsonAsync<BookingResponse>(ApiFactory.Json))!;
+
+        var cancel = new CancelBookingRequest { CancelledBy = TestData.Requester, Reason = "Room flooded" };
+        await _client.PostAsJsonAsync($"/api/bookings/{booking.Id}/cancel", cancel, ApiFactory.Json);
+        await _client.PostAsJsonAsync($"/api/bookings/{booking.Id}/cancel", cancel, ApiFactory.Json);
+
+        var trail = await _client.GetFromJsonAsync<List<BookingAuditResponse>>($"/api/bookings/{booking.Id}/audit", ApiFactory.Json);
+
+        trail.Should().HaveCount(2);
+    }
+
+    [Fact]
+    public async Task The_audit_trail_of_a_booking_that_does_not_exist_gives_404()
+    {
+        var response = await _client.GetAsync($"/api/bookings/{Guid.NewGuid()}/audit");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task Bookings_can_be_listed_for_one_resource()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var day = TestData.NextMonday(17);
+
+        await _client.PostAsJsonAsync("/api/bookings", TestData.Booking(resource.Id, day, day.AddHours(1)), ApiFactory.Json);
+
+        var bookings = await _client.GetFromJsonAsync<List<BookingResponse>>($"/api/bookings?resourceId={resource.Id}", ApiFactory.Json);
+
+        bookings.Should().HaveCount(1);
+        bookings![0].ResourceName.Should().Be(resource.Name);
+        bookings[0].RequesterName.Should().Be("Maria Ionescu");
+    }
+
+    [Fact]
     public async Task The_seeded_users_are_listed()
     {
         var users = await _client.GetFromJsonAsync<List<UserResponse>>("/api/users", ApiFactory.Json);
 
         users.Should().HaveCount(4);
         users!.Should().Contain(u => u.Role == UserRole.Administrator);
+    }
+
+    [Fact]
+    public async Task A_booking_that_does_not_exist_gives_404()
+    {
+        var response = await _client.GetAsync($"/api/bookings/{Guid.NewGuid()}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
     }
 
     [Fact]

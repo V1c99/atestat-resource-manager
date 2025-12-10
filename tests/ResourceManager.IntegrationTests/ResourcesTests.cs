@@ -72,6 +72,69 @@ public class ResourcesTests
     }
 
     [Fact]
+    public async Task A_resource_can_be_renamed_and_moved()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var newName = "Renamed " + Guid.NewGuid();
+
+        var response = await _client.PutAsJsonAsync($"/api/resources/{resource.Id}", new UpdateResourceRequest
+        {
+            Name = newName,
+            Type = ResourceType.LabSlot,
+            Capacity = 3,
+            Location = "Workshop"
+        }, ApiFactory.Json);
+
+        var updated = (await response.Content.ReadFromJsonAsync<ResourceResponse>(ApiFactory.Json))!;
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        updated.Name.Should().Be(newName);
+        updated.Type.Should().Be(ResourceType.LabSlot);
+        updated.Capacity.Should().Be(3);
+        updated.Location.Should().Be("Workshop");
+    }
+
+    [Fact]
+    public async Task A_deactivated_resource_can_be_activated_again()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+
+        await _client.PostAsync($"/api/resources/{resource.Id}/deactivate", null);
+        var response = await _client.PostAsync($"/api/resources/{resource.Id}/activate", null);
+        var updated = (await response.Content.ReadFromJsonAsync<ResourceResponse>(ApiFactory.Json))!;
+
+        updated.IsActive.Should().BeTrue();
+    }
+
+    [Fact]
+    public async Task Asking_for_a_resource_that_does_not_exist_gives_404()
+    {
+        var unknown = Guid.NewGuid();
+
+        var get = await _client.GetAsync($"/api/resources/{unknown}");
+        var now = DateTimeOffset.UtcNow;
+        var schedule = await _client.GetAsync(
+            $"/api/resources/{unknown}/schedule?from={Uri.EscapeDataString(now.ToString("O"))}&to={Uri.EscapeDataString(now.AddDays(1).ToString("O"))}");
+        var deactivate = await _client.PostAsync($"/api/resources/{unknown}/deactivate", null);
+
+        get.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        schedule.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        deactivate.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task A_schedule_window_that_ends_before_it_starts_is_rejected()
+    {
+        var resource = await TestData.CreateResourceAsync(_client);
+        var now = DateTimeOffset.UtcNow;
+
+        var response = await _client.GetAsync(
+            $"/api/resources/{resource.Id}/schedule?from={Uri.EscapeDataString(now.ToString("O"))}&to={Uri.EscapeDataString(now.AddHours(-1).ToString("O"))}");
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
     public async Task Resources_can_be_filtered_by_type()
     {
         var rooms = await _client.GetFromJsonAsync<List<ResourceResponse>>("/api/resources?type=Vehicle", ApiFactory.Json);
