@@ -2,11 +2,18 @@ using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.EntityFrameworkCore;
-using ResourceManager.Infrastructure;
 using ResourceManager.Api.Validation;
+using ResourceManager.Infrastructure;
 using ResourceManager.Infrastructure.Repositories;
+using Serilog;
+using Serilog.Formatting.Compact;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Host.UseSerilog((context, configuration) => configuration
+    .ReadFrom.Configuration(context.Configuration)
+    .Enrich.FromLogContext()
+    .WriteTo.Console(new RenderedCompactJsonFormatter()));
 
 var connectionString = builder.Configuration.GetConnectionString("Database");
 if (string.IsNullOrWhiteSpace(connectionString))
@@ -42,6 +49,7 @@ using (var scope = app.Services.CreateScope())
     await Seed.RunAsync(db);
 }
 
+app.UseSerilogRequestLogging();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.MapControllers();
