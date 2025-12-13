@@ -1,0 +1,19 @@
+<h2>Resources</h2>
+
+@if (resources().length === 0) {
+  <p class="empty">Nothing to book yet.</p>
+}
+
+<ul>
+  @for (resource of resources(); track resource.id) {
+    <li>
+      <button type="button"
+              [class.selected]="resource.id === selectedId()"
+              (click)="picked.emit(resource)">
+        <span class="name">{{ resource.name }}</span>
+        <span class="meta">{{ resource.location }}, {{ resource.capacity }} {{ resource.capacity === 1 ? 'place' : 'places' }}</span>
+        <span class="type">{{ resource.type }}</span>
+      </button>
+    </li>
+  }
+</ul>

@@ -1,0 +1,19 @@
+<header>
+  <h1>Resource Manager</h1>
+  <p>Rooms, vehicles and equipment for one organisation.</p>
+</header>
+
+<main>
+  <aside>
+    <app-resource-list
+      [resources]="resources()"
+      [selectedId]="selected()?.id ?? null"
+      (picked)="pick($event)" />
+  </aside>
+
+  <section>
+    @if (selected(); as resource) {
+      <app-booking-form [resource]="resource" [users]="users()" />
+    }
+  </section>
+</main>

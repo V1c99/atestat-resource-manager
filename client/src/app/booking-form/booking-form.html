@@ -1,0 +1,36 @@
+<h2>Book {{ resource().name }}</h2>
+
+<form (ngSubmit)="submit()">
+  <label>
+    Day
+    <input type="date" name="date" [(ngModel)]="date" required>
+  </label>
+
+  <div class="times">
+    <label>
+      From
+      <input type="time" name="startTime" [(ngModel)]="startTime" required>
+    </label>
+    <label>
+      To
+      <input type="time" name="endTime" [(ngModel)]="endTime" required>
+    </label>
+  </div>
+
+  <label>
+    Who is booking
+    <select name="requesterId" [(ngModel)]="requesterId" required>
+      <option value="" disabled>Pick a person</option>
+      @for (user of users(); track user.id) {
+        <option [value]="user.id">{{ user.fullName }}</option>
+      }
+    </select>
+  </label>
+
+  <label>
+    Purpose
+    <input type="text" name="purpose" [(ngModel)]="purpose" maxlength="200" required>
+  </label>
+
+  <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving' : 'Book it' }}</button>
+</form>
