@@ -38,6 +38,12 @@ builder.Services.AddValidatorsFromAssemblyContaining<CreateBookingRequestValidat
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var clientOrigins = builder.Configuration.GetSection("ClientOrigins").Get<string[]>() ?? Array.Empty<string>();
+builder.Services.AddCors(options => options.AddDefaultPolicy(policy => policy
+    .WithOrigins(clientOrigins)
+    .AllowAnyHeader()
+    .AllowAnyMethod()));
+
 var app = builder.Build();
 
 // TODO: migrating on startup is fine while there is one container. I do not know yet what
@@ -52,6 +58,7 @@ using (var scope = app.Services.CreateScope())
 app.UseSerilogRequestLogging();
 app.UseSwagger();
 app.UseSwaggerUI();
+app.UseCors();
 app.MapControllers();
 app.MapGet("/health", () => Results.Ok(new { status = "ok" }));
 
