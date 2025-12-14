@@ -13,7 +13,23 @@
 
   <section>
     @if (selected(); as resource) {
-      <app-booking-form [resource]="resource" [users]="users()" />
+      <div class="week-bar">
+        <button type="button" (click)="moveWeek(-1)">Previous</button>
+        <span>{{ resource.name }}, week of {{ weekStart() | date: 'd MMMM y' }}</span>
+        <button type="button" (click)="moveWeek(1)">Next</button>
+      </div>
+
+      <app-week-schedule
+        [bookings]="bookings()"
+        [weekStart]="weekStart()"
+        (cancelled)="cancel($event)" />
     }
   </section>
+
+  <aside>
+    @if (selected(); as resource) {
+      <app-booking-form [resource]="resource" [users]="users()" (saved)="loadWeek()" />
+    }
+
+  </aside>
 </main>

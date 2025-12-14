@@ -1,0 +1,22 @@
+<div class="week">
+  @for (day of days(); track day.getTime()) {
+    <div class="day">
+      <h3>{{ day | date: 'EEE d MMM' }}</h3>
+
+      @if (bookingsOn(day).length === 0) {
+        <p class="free">Free</p>
+      }
+
+      @for (booking of bookingsOn(day); track booking.id) {
+        <div class="booking">
+          <div class="hours">{{ booking.startsAt | date: 'HH:mm' }} to {{ booking.endsAt | date: 'HH:mm' }}</div>
+          <div class="purpose">{{ booking.purpose }}</div>
+          <div class="who">{{ booking.requesterName }}</div>
+          <div class="actions">
+            <button type="button" class="cancel" (click)="cancelled.emit(booking)">Cancel</button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

@@ -16,7 +16,16 @@ export class Api {
     return this.http.get<User[]>(`${this.base}/users`);
   }
 
+  schedule(resourceId: string, from: Date, to: Date) {
+    const params = { from: from.toISOString(), to: to.toISOString() };
+    return this.http.get<Booking[]>(`${this.base}/resources/${resourceId}/schedule`, { params });
+  }
+
   createBooking(booking: CreateBooking) {
     return this.http.post<Booking>(`${this.base}/bookings`, booking);
+  }
+
+  cancelBooking(id: string, cancelledBy: string, reason: string) {
+    return this.http.post<Booking>(`${this.base}/bookings/${id}/cancel`, { cancelledBy, reason });
   }
 }

@@ -15,10 +15,27 @@ header p {
 
 main {
   display: grid;
-  grid-template-columns: 13rem minmax(0, 1fr);
+  grid-template-columns: 13rem minmax(0, 1fr) 14rem;
   gap: 1.5rem;
   padding: 1rem 1.5rem 2rem;
   align-items: start;
+}
+
+.week-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+}
+
+.week-bar button {
+  font: inherit;
+  background: #fff;
+  border: 1px solid #d8dee6;
+  border-radius: 4px;
+  padding: 0.3rem 0.6rem;
+  cursor: pointer;
 }
 
 @media (max-width: 1100px) {

@@ -1,0 +1,71 @@
+.week {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.day {
+  background: #fff;
+  border: 1px solid #d8dee6;
+  border-radius: 6px;
+  padding: 0.5rem;
+  min-height: 8rem;
+}
+
+h3 {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  color: #6b7684;
+  margin: 0 0 0.5rem;
+}
+
+.free {
+  color: #9aa7b6;
+  font-size: 0.8rem;
+  margin: 0;
+}
+
+.booking {
+  background: #eef6f1;
+  border-left: 3px solid #2f6f4f;
+  border-radius: 4px;
+  padding: 0.4rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.75rem;
+}
+
+.hours {
+  font-weight: 600;
+}
+
+.who {
+  color: #6b7684;
+}
+
+.actions {
+  margin-top: 0.35rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}
+
+.actions button {
+  font: inherit;
+  font-size: 0.7rem;
+  background: #fff;
+  border: 1px solid #c3ccd7;
+  border-radius: 4px;
+  padding: 0.1rem 0.4rem;
+  cursor: pointer;
+}
+
+.actions .cancel {
+  color: #92312a;
+  border-color: #e0b4b0;
+}
+
+@media (max-width: 900px) {
+  .week {
+    grid-template-columns: 1fr;
+  }
+}
