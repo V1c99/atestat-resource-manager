@@ -29,6 +29,8 @@ export class App implements OnInit {
   readonly selected = signal<Resource | null>(null);
   readonly weekStart = signal(mondayOf(new Date()));
 
+  private weekRequest = 0;
+
   ngOnInit() {
     this.api.users().subscribe(users => this.users.set(users));
     this.api.resources().subscribe(resources => {
@@ -61,7 +63,14 @@ export class App implements OnInit {
     const to = new Date(from);
     to.setDate(to.getDate() + 7);
 
-    this.api.schedule(resource.id, from, to).subscribe(bookings => this.bookings.set(bookings));
+    // Holding Previous down fires a request per click and they do not come back in order.
+    // Only the answer to the last one is allowed to win.
+    const request = ++this.weekRequest;
+    this.api.schedule(resource.id, from, to).subscribe(bookings => {
+      if (request === this.weekRequest) {
+        this.bookings.set(bookings);
+      }
+    });
   }
 
   // TODO: prompt() is ugly. A small dialog would be better but I ran out of weekend.
