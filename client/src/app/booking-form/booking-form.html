@@ -34,3 +34,12 @@
 
   <button type="submit" [disabled]="saving()">{{ saving() ? 'Saving' : 'Book it' }}</button>
 </form>
+
+@if (error()) {
+  <div class="error">
+    <p>{{ error() }}</p>
+    @if (clash(); as booking) {
+      <p class="clash">{{ booking.startsAt | date: 'd MMM, HH:mm' }} to {{ booking.endsAt | date: 'HH:mm' }}, {{ booking.purpose }}</p>
+    }
+  </div>
+}

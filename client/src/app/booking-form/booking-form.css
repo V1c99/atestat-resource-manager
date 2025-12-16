@@ -51,3 +51,22 @@ button:disabled {
   background: #9aa7b6;
   cursor: default;
 }
+
+.error {
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.6rem;
+  background: #fbeceb;
+  border: 1px solid #e0b4b0;
+  border-radius: 4px;
+  color: #92312a;
+  font-size: 0.85rem;
+}
+
+.error p {
+  margin: 0;
+}
+
+.error .clash {
+  margin-top: 0.35rem;
+  font-weight: 600;
+}
