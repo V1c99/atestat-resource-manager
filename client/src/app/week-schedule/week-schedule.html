@@ -13,6 +13,7 @@
           <div class="purpose">{{ booking.purpose }}</div>
           <div class="who">{{ booking.requesterName }}</div>
           <div class="actions">
+            <button type="button" (click)="auditRequested.emit(booking)">History</button>
             <button type="button" class="cancel" (click)="cancelled.emit(booking)">Cancel</button>
           </div>
         </div>

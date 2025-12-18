@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { environment } from '../environments/environment';
-import { Booking, CreateBooking, Resource, User } from './models';
+import { Booking, BookingAudit, CreateBooking, Resource, User } from './models';
 
 @Injectable({ providedIn: 'root' })
 export class Api {
@@ -27,5 +27,9 @@ export class Api {
 
   cancelBooking(id: string, cancelledBy: string, reason: string) {
     return this.http.post<Booking>(`${this.base}/bookings/${id}/cancel`, { cancelledBy, reason });
+  }
+
+  audit(bookingId: string) {
+    return this.http.get<BookingAudit[]>(`${this.base}/bookings/${bookingId}/audit`);
   }
 }

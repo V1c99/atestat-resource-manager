@@ -22,7 +22,8 @@
       <app-week-schedule
         [bookings]="bookings()"
         [weekStart]="weekStart()"
-        (cancelled)="cancel($event)" />
+        (cancelled)="cancel($event)"
+        (auditRequested)="showAudit($event)" />
     }
   </section>
 
@@ -31,5 +32,21 @@
       <app-booking-form [resource]="resource" [users]="users()" (saved)="loadWeek()" />
     }
 
+    @if (auditFor(); as booking) {
+      <div class="audit">
+        <h2>History</h2>
+        <p class="subject">{{ booking.purpose }}</p>
+        <ul>
+          @for (row of audit(); track row.id) {
+            <li>
+              <span class="when">{{ row.changedAt | date: 'd MMM HH:mm' }}</span>
+              <span class="change">{{ row.fromStatus ?? 'new' }} to {{ row.toStatus }}</span>
+              <span class="note">{{ row.note }}</span>
+            </li>
+          }
+        </ul>
+        <button type="button" (click)="closeAudit()">Close</button>
+      </div>
+    }
   </aside>
 </main>

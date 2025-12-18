@@ -2,7 +2,7 @@ import { DatePipe } from '@angular/common';
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Api } from './api';
 import { BookingForm } from './booking-form/booking-form';
-import { Booking, Resource, User } from './models';
+import { Booking, BookingAudit, Resource, User } from './models';
 import { ResourceList } from './resource-list/resource-list';
 import { WeekSchedule } from './week-schedule/week-schedule';
 
@@ -28,6 +28,8 @@ export class App implements OnInit {
   readonly bookings = signal<Booking[]>([]);
   readonly selected = signal<Resource | null>(null);
   readonly weekStart = signal(mondayOf(new Date()));
+  readonly auditFor = signal<Booking | null>(null);
+  readonly audit = signal<BookingAudit[]>([]);
 
   private weekRequest = 0;
 
@@ -43,6 +45,7 @@ export class App implements OnInit {
 
   pick(resource: Resource) {
     this.selected.set(resource);
+    this.auditFor.set(null);
     this.loadWeek();
   }
 
@@ -81,5 +84,14 @@ export class App implements OnInit {
     }
 
     this.api.cancelBooking(booking.id, booking.requesterId, reason).subscribe(() => this.loadWeek());
+  }
+
+  showAudit(booking: Booking) {
+    this.auditFor.set(booking);
+    this.api.audit(booking.id).subscribe(rows => this.audit.set(rows));
+  }
+
+  closeAudit() {
+    this.auditFor.set(null);
   }
 }

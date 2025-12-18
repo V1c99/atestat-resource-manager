@@ -12,6 +12,7 @@ export class WeekSchedule {
   readonly bookings = input.required<Booking[]>();
   readonly weekStart = input.required<Date>();
   readonly cancelled = output<Booking>();
+  readonly auditRequested = output<Booking>();
 
   readonly days = computed(() => {
     const start = this.weekStart();
