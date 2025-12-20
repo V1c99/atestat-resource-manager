@@ -21,8 +21,16 @@ services:
     environment:
       ASPNETCORE_URLS: http://+:8080
       ConnectionStrings__Database: Host=db;Port=5432;Database=resourcemanager;Username=resourcemanager;Password=${POSTGRES_PASSWORD:-resourcemanager}
+      ClientOrigins__0: http://localhost:8080
     ports:
       - "5080:8080"
+
+  client:
+    build: ./client
+    depends_on:
+      - api
+    ports:
+      - "8080:80"
 
 volumes:
   db-data:
