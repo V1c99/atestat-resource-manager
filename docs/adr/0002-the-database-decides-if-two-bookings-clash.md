@@ -24,7 +24,7 @@ arriving together both run the query, both see nothing, and both insert. I wrote
 fires two overlapping bookings at the same time and it failed the way I expected, with two rows
 in the table.
 
-The 2024 project had exactly this bug and nobody at the defence asked about it.
+The original project had exactly this bug and nobody at the defence asked about it.
 
 ## Decision
 

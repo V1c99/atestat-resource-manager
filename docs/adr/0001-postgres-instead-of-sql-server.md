@@ -5,7 +5,7 @@
 
 ## Context
 
-The 2024 version stored everything in SQL Server, because that is what the school lab had
+The original version stored everything in SQL Server, because that is what the school lab had
 installed and what the C# examples in the textbook used. It worked, but setting it up on a
 different machine meant a page of instructions and about half an hour, and I had to write that
 page for the defence.
